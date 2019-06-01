@@ -1,3 +1,7 @@
+flask
+flask_restful
+functools
+jwt
 autopep8==1.4.4
 cachetools==3.1.0
 certifi==2019.3.9
