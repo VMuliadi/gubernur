@@ -21,3 +21,14 @@
                                   ~~                       ~~                       \/____/                  \|___|                   \/____/                  ~~                       \|___|          
                                                                                                                                                                                                         
 ```
+
+## v0.0.1
+- LevelDB Integration 
+- Upload kubeconfig and store it to the LevelDB
+- Set the kubeconfig store name (mandatory parameters)
+- Get the details of a kubernetes cluster 
+- Get the namespace from a kubernetes cluster
+- Get the deployment from a kubernetes namespace
+- Get the service from a kubernetes namespace
+- Get the pod from a kubernetes namespace
+- Get the mapping between service, deployment, and pod from a kubernetes cluster
