@@ -1,22 +1,30 @@
 import os
 import plyvel
-database = plyvel.DB('./database', create_if_missing=True)
+
+kube_magic_word = os.getenv("KUBECONFIG_MAGIC_WORD")
+database = plyvel.DB("./database", create_if_missing=True)
 
 
-def put_kubeconfig_to_leveldb(kubeconfig):
+def put_item(kubeconfig_file, client_name):
+    """
+    Add padding to the original byte file and put it to the LevelDB
+    :param kubeconfig_file:  kubeconfig file (file)
+    :param client_name: the client name (string)
+    :return: None
+    """
     bytes_version = bytes()
-    with open(kubeconfig, 'rb') as filestream:
-        byte = filestream.read(1)
-        while byte:
-            byte = filestream.read(1)
+    with open(kubeconfig_file, 'rb') as kubeconfig:
+        for byte in iter(lambda: kubeconfig.read(1), b''):
             bytes_version = bytes_version + byte
-    database.put(bytes(kubeconfig.split('/')[-1], 'utf-8'), bytes_version)
-    return kubeconfig.split('/')[-1]
+    bytes_version = kube_magic_word.encode() + bytes_version
+    database.put(bytes(client_name, "utf-8"), bytes_version)
 
 
-def get_kubeconfig_to_leveldb(kubeconfig):
-    return database.get(bytes(kubeconfig.split('/')[-1], 'utf-8'))
-
-
-key = put_kubeconfig_to_leveldb(os.path.abspath('./README.md'))
-print(get_kubeconfig_to_leveldb(key))
+def get_kubeconfig_to_leveldb(client_name):
+    """
+    Remove padding from the kubeconfig file and return it in byte format
+    :param client_name: the client name (string)
+    :return: the true value of kubeconfig from leveldb after remove the padding (byte)
+    """
+    kubeconfig = database.get(bytes(client_name, "utf-8")).decode()
+    return kubeconfig.replace(kube_magic_word, "", 1).encode()
