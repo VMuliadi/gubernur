@@ -10,13 +10,9 @@ class DB(object):
 
 DB = DB()
 
-def magic():
-    return os.environ["DBUNLOCK"]
-
 def db_init(db_name):
     if db_name is None:
         return DB.ERROR
-    database = None
     try:
         database = plyvel.DB(db_name, create_if_missing=True)
     except Exception as e:
@@ -32,7 +28,7 @@ def db_write(database, key, val):
     if database is None or key is None or val is None:
         return DB.ERROR
     try:
-        database.put(magic() + key, magic() + val)
+        database.put(bytes(key), bytes(val))
     except Exception as e:
         return DB.ERROR
     return DB.SUCCESS
@@ -41,10 +37,10 @@ def db_read(database, key):
     if database is None or key is None:
         return DB.ERROR
     try:
-        data = database.get(magic() + key)
+        data = database.get(bytes(key))
     except Exception as e:
         return DB.ERROR
-    return data.split(magic())[1]
+    return data
 
 # TODO:
 ## * db_snapshot
